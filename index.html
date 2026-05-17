@@ -818,17 +818,17 @@ section {
   right: 1.5rem;
   z-index: 100;
   display: flex;
-  align-items: center;
-  gap: 0.8rem;
-  background: rgba(26,15,10,0.92);
-  backdrop-filter: blur(10px);
+  flex-direction: column;
+  background: rgba(26,15,10,0.95);
+  backdrop-filter: blur(14px);
   padding: 0.7rem 1rem;
   border: 1px solid rgba(201,169,110,0.3);
   opacity: 0;
   animation: fadeUp 1s ease 5.5s forwards;
+  min-width: 200px;
+  max-width: 240px;
 }
-.music-icon { color: var(--gold); font-size: 0.8rem; }
-.music-info { flex: 1; }
+.music-info { flex: 1; min-width: 0; }
 .music-title {
   font-family: 'Cormorant Garamond', serif;
   font-size: 0.75rem;
@@ -941,17 +941,38 @@ section {
 
 <!-- Music Player -->
 <div id="music-player">
-  <div class="music-icon">♪</div>
-  <div class="music-info">
-    <span class="music-title">Golden Hour</span>
-    <span class="music-sub">Playing for you ✦</span>
+  <!-- YouTube Player target (hidden) -->
+  <div id="yt-player" style="position:absolute;opacity:0;pointer-events:none;width:0;height:0;overflow:hidden"></div>
+
+  <div id="music-main" style="display:flex;align-items:center;gap:0.8rem;width:100%">
+    <button id="play-btn" onclick="togglePlay()" style="background:none;border:none;cursor:none;color:var(--gold);font-size:1rem;padding:0;line-height:1">▶</button>
+    <div class="music-info" style="flex:1;min-width:0">
+      <span class="music-title" id="music-title-text">Golden Hour</span>
+      <span class="music-sub" id="music-artist-text">JVKE ✦</span>
+    </div>
+    <div class="music-waves" id="music-waves">
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+      <div class="wave-bar"></div>
+    </div>
+    <button onclick="togglePlaylist()" style="background:none;border:none;cursor:none;color:rgba(249,244,236,0.5);font-size:0.75rem;padding:0;line-height:1;margin-left:0.3rem">≡</button>
   </div>
-  <div class="music-waves">
-    <div class="wave-bar"></div>
-    <div class="wave-bar"></div>
-    <div class="wave-bar"></div>
-    <div class="wave-bar"></div>
-    <div class="wave-bar"></div>
+
+  <!-- Playlist Dropdown -->
+  <div id="playlist" style="
+    display:none;
+    position:absolute;
+    bottom:calc(100% + 0.5rem);
+    right:0;
+    background:rgba(20,10,6,0.97);
+    border:1px solid rgba(201,169,110,0.25);
+    backdrop-filter:blur(12px);
+    min-width:220px;
+    padding:0.5rem 0;
+  ">
+    <div style="padding:0.5rem 1rem 0.3rem;font-family:'Cormorant Garamond',serif;font-size:0.6rem;letter-spacing:0.4em;text-transform:uppercase;color:rgba(201,169,110,0.6)">Choose a song ✦</div>
   </div>
 </div>
 
@@ -1474,6 +1495,118 @@ function animConfetti() {
 
 window.addEventListener('resize', resizeConfetti);
 resizeConfetti();
+
+// ============================================
+// MUSIC PLAYER — YouTube IFrame API
+// ============================================
+const SONGS = [
+  { title: 'Golden Hour',       artist: 'JVKE',              id: 'y0bVN7k8t3A' },
+  { title: 'Lover',             artist: 'Taylor Swift (piano)','id': 'gPQDr3OUBKM' },
+  { title: 'You Are The Reason', artist: 'Calum Scott',       id: 'ShZ978fBl6Y'  },
+  { title: 'All of Me',         artist: 'John Legend',        id: 'RBumgq5yVrA'  },
+  { title: 'Perfect',           artist: 'Ed Sheeran',         id: '2Vv-BfVoq4g'  },
+  { title: 'A Thousand Years',  artist: 'Christina Perri',    id: 'rtOvBOTyX00'  },
+];
+
+let currentSong = 0;
+let ytPlayer = null;
+let isPlaying = false;
+let playerReady = false;
+
+// Load YouTube IFrame API
+const ytScript = document.createElement('script');
+ytScript.src = 'https://www.youtube.com/iframe_api';
+document.head.appendChild(ytScript);
+
+window.onYouTubeIframeAPIReady = function() {
+  ytPlayer = new YT.Player('yt-player', {
+    height: '0', width: '0',
+    videoId: SONGS[0].id,
+    playerVars: { autoplay: 0, controls: 0, rel: 0, modestbranding: 1 },
+    events: {
+      onReady: () => { playerReady = true; },
+      onStateChange: (e) => {
+        if (e.data === YT.PlayerState.ENDED) nextSong();
+      }
+    }
+  });
+};
+
+function togglePlay() {
+  if (!playerReady) return;
+  if (isPlaying) {
+    ytPlayer.pauseVideo();
+    isPlaying = false;
+    document.getElementById('play-btn').textContent = '▶';
+    document.querySelectorAll('.wave-bar').forEach(b => b.style.animationPlayState = 'paused');
+  } else {
+    ytPlayer.playVideo();
+    isPlaying = true;
+    document.getElementById('play-btn').textContent = '⏸';
+    document.querySelectorAll('.wave-bar').forEach(b => b.style.animationPlayState = 'running');
+  }
+}
+
+function playSong(index) {
+  if (!playerReady) return;
+  currentSong = index;
+  const s = SONGS[index];
+  ytPlayer.loadVideoById(s.id);
+  ytPlayer.playVideo();
+  isPlaying = true;
+  document.getElementById('play-btn').textContent = '⏸';
+  document.getElementById('music-title-text').textContent = s.title;
+  document.getElementById('music-artist-text').textContent = s.artist + ' ✦';
+  document.querySelectorAll('.wave-bar').forEach(b => b.style.animationPlayState = 'running');
+  // Update active state in playlist
+  document.querySelectorAll('.pl-item').forEach((el, i) => {
+    el.style.color = i === index ? 'var(--gold)' : 'rgba(249,244,236,0.65)';
+    el.style.background = i === index ? 'rgba(201,169,110,0.08)' : 'transparent';
+  });
+  document.getElementById('playlist').style.display = 'none';
+}
+
+function nextSong() {
+  playSong((currentSong + 1) % SONGS.length);
+}
+
+function togglePlaylist() {
+  const pl = document.getElementById('playlist');
+  const isOpen = pl.style.display !== 'none';
+  if (isOpen) { pl.style.display = 'none'; return; }
+  // Build playlist items
+  const existing = pl.querySelectorAll('.pl-item');
+  if (existing.length === 0) {
+    SONGS.forEach((s, i) => {
+      const item = document.createElement('div');
+      item.className = 'pl-item';
+      item.style.cssText = `
+        padding: 0.55rem 1rem;
+        cursor: pointer;
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 0.8rem;
+        color: ${i === currentSong ? 'var(--gold)' : 'rgba(249,244,236,0.65)'};
+        background: ${i === currentSong ? 'rgba(201,169,110,0.08)' : 'transparent'};
+        transition: all 0.2s ease;
+        display: flex; flex-direction: column; gap: 1px;
+        border-bottom: 1px solid rgba(255,255,255,0.04);
+      `;
+      item.innerHTML = `<span style="font-weight:600">${s.title}</span><span style="font-size:0.68rem;opacity:0.55;letter-spacing:0.1em">${s.artist}</span>`;
+      item.onmouseenter = () => { if (i !== currentSong) item.style.background = 'rgba(255,255,255,0.04)'; };
+      item.onmouseleave = () => { if (i !== currentSong) item.style.background = 'transparent'; };
+      item.onclick = () => playSong(i);
+      pl.appendChild(item);
+    });
+  }
+  pl.style.display = 'block';
+}
+
+// Close playlist on outside click
+document.addEventListener('click', e => {
+  const pl = document.getElementById('playlist');
+  const mp = document.getElementById('music-player');
+  if (!mp.contains(e.target)) pl.style.display = 'none';
+});
 </script>
 </body>
 </html>
