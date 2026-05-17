@@ -663,45 +663,27 @@
   <p class="section-desc reveal">some moments i keep coming back to.</p>
   <div class="polaroid-grid">
     <div class="polaroid" data-idx="0">
-      <div class="polaroid-placeholder">
-        <span class="ph-icon">&#128247;</span>
-        <span class="ph-text">foto 1</span>
-      </div>
+      <img src="rista1.jpg" alt="" class="polaroid-img">
       <div class="polaroid-caption">the day i realized<br>i would remember this forever.</div>
     </div>
     <div class="polaroid" data-idx="1">
-      <div class="polaroid-placeholder">
-        <span class="ph-icon">&#128247;</span>
-        <span class="ph-text">foto 2</span>
-      </div>
+      <img src="rista2.jpg" alt="" class="polaroid-img">
       <div class="polaroid-caption">you looked too pretty here<br>honestly.</div>
     </div>
     <div class="polaroid" data-idx="2">
-      <div class="polaroid-placeholder">
-        <span class="ph-icon">&#128247;</span>
-        <span class="ph-text">foto 3</span>
-      </div>
+      <img src="rista3.jpg" alt="" class="polaroid-img">
       <div class="polaroid-caption">still one of my<br>favorite moments.</div>
     </div>
     <div class="polaroid" data-idx="3">
-      <div class="polaroid-placeholder">
-        <span class="ph-icon">&#128247;</span>
-        <span class="ph-text">foto 4</span>
-      </div>
+      <img src="rista4.jpg" alt="" class="polaroid-img">
       <div class="polaroid-caption">everything felt easy<br>that day.</div>
     </div>
     <div class="polaroid" data-idx="4">
-      <div class="polaroid-placeholder">
-        <span class="ph-icon">&#128247;</span>
-        <span class="ph-text">foto 5</span>
-      </div>
+      <img src="rista5.jpg" alt="" class="polaroid-img">
       <div class="polaroid-caption">i love how comfortable<br>everything feels with you.</div>
     </div>
     <div class="polaroid" data-idx="5">
-      <div class="polaroid-placeholder">
-        <span class="ph-icon">&#128247;</span>
-        <span class="ph-text">foto 6</span>
-      </div>
+      <img src="rista6.jpg" alt="" class="polaroid-img">
       <div class="polaroid-caption">some moments are just<br>quietly perfect.</div>
     </div>
   </div>
@@ -1281,49 +1263,74 @@
     audioToggleBtn.classList.remove("playing");
   }
 
-  // Juga coba load file music.mp3 jika ada
   var bgMusic = document.getElementById("bgMusic");
-  var useMp3 = false;
-  bgMusic.addEventListener("canplaythrough", function() { useMp3 = true; }, { once: true });
+  var mp3Active = false;   // true kalau mp3 berhasil play
+  var audioStarted = false;
+
+  function fadeInMp3() {
+    bgMusic.volume = 0;
+    audioToggleBtn.innerHTML = "&#9834;";
+    audioToggleBtn.classList.add("playing");
+    mp3Active = true;
+    var vol = 0;
+    var iv = setInterval(function() {
+      vol += 0.006;
+      if (vol >= 0.45) { bgMusic.volume = 0.45; clearInterval(iv); }
+      else bgMusic.volume = vol;
+    }, 80);
+  }
 
   function startAudio() {
-    if (useMp3) {
-      bgMusic.volume = 0;
-      bgMusic.play().then(function() {
-        var vol = 0;
-        var iv = setInterval(function() {
-          vol += 0.005; if (vol >= 0.38) { bgMusic.volume = 0.38; clearInterval(iv); }
-          else bgMusic.volume = vol;
-        }, 100);
-      }).catch(function() { startMusic(); });
+    // Selalu coba mp3 dulu — ini bekerja di Chrome, Firefox, Safari, dan mobile
+    // asal file music.mp3 ada di folder yang sama
+    bgMusic.volume = 0;
+    bgMusic.load(); // paksa reload agar Safari mau baca file
+    var playPromise = bgMusic.play();
+    if (playPromise !== undefined) {
+      playPromise.then(function() {
+        fadeInMp3();
+      }).catch(function() {
+        // mp3 gagal (file tidak ada / format tidak didukung) → pakai instrumen
+        startMusic();
+      });
     } else {
-      startMusic();
+      // Browser lama yang tidak return promise
+      fadeInMp3();
     }
   }
 
-  // Toggle button
+  // Toggle button — pause/resume mp3 atau instrumen
   audioToggleBtn.addEventListener("click", function() {
-    if (useMp3) {
-      if (bgMusic.paused) { bgMusic.play(); audioToggleBtn.innerHTML = "&#9834;"; audioToggleBtn.classList.add("playing"); }
-      else { bgMusic.pause(); audioToggleBtn.innerHTML = "&#9835;"; audioToggleBtn.classList.remove("playing"); }
+    if (!audioStarted) {
+      audioStarted = true;
+      startAudio();
+      return;
+    }
+    if (mp3Active) {
+      if (bgMusic.paused) {
+        bgMusic.play();
+        audioToggleBtn.innerHTML = "&#9834;";
+        audioToggleBtn.classList.add("playing");
+      } else {
+        bgMusic.pause();
+        audioToggleBtn.innerHTML = "&#9835;";
+        audioToggleBtn.classList.remove("playing");
+      }
     } else {
       if (!musicPlaying) startMusic();
       else stopMusic();
     }
   });
 
-  // Autoplay on first interaction
-  var audioStarted = false;
+  // Autoplay saat interaksi pertama (wajib untuk semua browser modern)
   function tryStart() {
     if (audioStarted) return;
     audioStarted = true;
     startAudio();
   }
-  document.addEventListener("click",  tryStart, { once: true });
-  document.addEventListener("scroll", tryStart, { once: true });
-  document.addEventListener("touchstart", tryStart, { once: true });
-  // Try immediately (works on some browsers)
-  setTimeout(tryStart, 800);
+  document.addEventListener("click",      tryStart, { once: true });
+  document.addEventListener("scroll",     tryStart, { once: true });
+  document.addEventListener("touchstart", tryStart, { once: true, passive: true });
 
 })();
 </script>
