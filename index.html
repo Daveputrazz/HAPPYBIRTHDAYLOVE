@@ -1015,63 +1015,77 @@
     if (e.key === "ArrowLeft")  goToScene(currentScene - 1);
   });
 
-  /* ── LETTER TYPING ── */
+ /* ── LETTER TYPING ── */
   var letterLines = [
-    { text: "hi, birthday girl.", delay: 0 },
-    { text: "aku nggak terlalu jago bikin kata-kata sempurna...", delay: 1200 },
-    { text: "tapi kalau ada satu hal yang selalu aku yakin,", delay: 2700 },
-    { text: "aku bersyukur dunia pernah mempertemukan aku sama kamu.", delay: 4100, hl: true },
-    { text: "", delay: 5000 },
+    { text: "hi, birthday girl.",                                                      delay: 0    },
+    { text: "aku nggak terlalu jago bikin kata-kata sempurna...",                      delay: 1200 },
+    { text: "tapi kalau ada satu hal yang selalu aku yakin,",                          delay: 2700 },
+    { text: "aku bersyukur dunia pernah mempertemukan aku sama kamu.",                 delay: 4100, hl: true },
+    { text: "",                                                                         delay: 5000 },
     { text: "kamu mungkin nggak tahu betapa seringnya aku mikirin hal-hal kecil itu,", delay: 5300 },
     { text: "tawa kamu yang keluar tiba-tiba. cara kamu cerita tentang hal yang kamu suka.", delay: 6800 },
-    { text: "momen-momen biasa yang entah kenapa jadi nggak biasa sama kamu.", delay: 8300, hl: true },
-    { text: "", delay: 9200 },
-    { text: "hari ini kamu genap satu tahun lebih tua,", delay: 9400 },
-    { text: "dan aku harap setiap tahun ke depannya,", delay: 10600 },
-    { text: "kamu selalu dikelilingi hal-hal yang beneran bikin kamu bahagia.", delay: 11800 },
-    { text: "", delay: 12600 },
-    { text: "thank you for existing.", delay: 12800, big: true },
-    { text: "and thank you for letting me be part of your universe.", delay: 14200, hl: true }
+    { text: "momen-momen biasa yang entah kenapa jadi nggak biasa sama kamu.",         delay: 8300, hl: true },
+    { text: "",                                                                         delay: 9200 },
+    { text: "hari ini kamu genap satu tahun lebih tua,",                               delay: 9400 },
+    { text: "dan aku harap setiap tahun ke depannya,",                                 delay: 10600 },
+    { text: "kamu selalu dikelilingi hal-hal yang beneran bikin kamu bahagia.",        delay: 11800 },
+    { text: "",                                                                         delay: 12600 },
+    { text: "thank you for existing.",                                                 delay: 12800, big: true },
+    { text: "and thank you for letting me be part of your universe.",                  delay: 14200, hl: true }
   ];
-  var letterTyped = false;
+
+  var letterTyped   = false;
   var letterContent = document.getElementById("letterContent");
+
   var letterIO = new IntersectionObserver(function(entries) {
     for (var i = 0; i < entries.length; i++) {
-      if (entries[i].isIntersecting && !letterTyped) { letterTyped = true; typeLetter(); }
+      if (entries[i].isIntersecting && !letterTyped) {
+        letterTyped = true;
+        typeLetter();
+      }
     }
   }, { threshold: 0.3 });
   var slide5el = document.getElementById("slide5");
   if (slide5el) letterIO.observe(slide5el);
+
   function typeLetter() {
     if (!letterContent) return;
     letterContent.innerHTML = "<span class=\"typing-cursor\"></span>";
+
     for (var li = 0; li < letterLines.length; li++) {
       (function(line, idx) {
         setTimeout(function() {
           var old = letterContent.querySelector(".typing-cursor");
           if (old && old.parentNode) old.parentNode.removeChild(old);
+
           if (line.text === "") {
             letterContent.appendChild(document.createElement("br"));
           } else {
             var p = document.createElement("p");
-            if (line.hl) p.classList.add("hl");
+            if (line.hl)  p.classList.add("hl");
             if (line.big) p.classList.add("big");
-            p.style.opacity = "0"; p.style.transform = "translateY(10px)";
+            p.style.opacity    = "0";
+            p.style.transform  = "translateY(10px)";
             p.style.transition = "opacity 0.85s, transform 0.85s";
             p.textContent = line.text;
             letterContent.appendChild(p);
             requestAnimationFrame(function() {
-              setTimeout(function() { p.style.opacity = "1"; p.style.transform = "translateY(0)"; }, 30);
+              setTimeout(function() {
+                p.style.opacity   = "1";
+                p.style.transform = "translateY(0)";
+              }, 30);
             });
           }
+
           var cur = document.createElement("span");
           cur.className = "typing-cursor";
           letterContent.appendChild(cur);
+
           if (idx === letterLines.length - 1) {
             setTimeout(function() {
               if (cur.parentNode) cur.parentNode.removeChild(cur);
               var sign = document.createElement("span");
-              sign.className = "letter-sign";
+              sign.className   = "letter-sign";
               sign.textContent = "\u2014 with love \uD83E\uDD0D";
               letterContent.appendChild(sign);
             }, 1200);
@@ -1085,45 +1099,65 @@
   var finaleStarted = false;
   var finaleIO = new IntersectionObserver(function(entries) {
     for (var i = 0; i < entries.length; i++) {
-      if (entries[i].isIntersecting && !finaleStarted) { finaleStarted = true; startFinale(); }
+      if (entries[i].isIntersecting && !finaleStarted) {
+        finaleStarted = true;
+        startFinale();
+      }
     }
   }, { threshold: 0.4 });
   var finaleEl = document.getElementById("finale");
   if (finaleEl) finaleIO.observe(finaleEl);
-  function revealEl2(id, delay) {
+
+  function revealEl(id, delay) {
     setTimeout(function() {
       var el = document.getElementById(id);
       if (!el) return;
       el.style.transition = "opacity 1.2s ease, transform 1.2s ease";
-      el.style.transform = "translateY(22px)"; el.style.opacity = "0";
+      el.style.transform  = "translateY(22px)";
+      el.style.opacity    = "0";
       requestAnimationFrame(function() {
-        setTimeout(function() { el.style.transform = "translateY(0)"; el.style.opacity = "1"; }, 40);
+        setTimeout(function() {
+          el.style.transform = "translateY(0)";
+          el.style.opacity   = "1";
+        }, 40);
       });
     }, delay);
   }
+
   function startFinale() {
-    revealEl2("fs1", 300); revealEl2("fs2", 750); revealEl2("fs3", 1150);
-    revealEl2("fs4", 1650); revealEl2("fs5", 2200);
+    revealEl("fs1", 300);
+    revealEl("fs2", 750);
+    revealEl("fs3", 1150);
+    revealEl("fs4", 1650);
+    revealEl("fs5", 2200);
     setTimeout(startConfetti, 1300);
   }
+
   var replayBtn = document.getElementById("fs5");
-  if (replayBtn) replayBtn.addEventListener("click", function() { window.scrollTo({ top: 0, behavior: "smooth" }); });
+  if (replayBtn) replayBtn.addEventListener("click", function() {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
 
   /* ── CONFETTI ── */
   function startConfetti() {
     var canvas = document.getElementById("confettiCanvas");
     if (!canvas) return;
     var cctx = canvas.getContext("2d");
-    canvas.width = window.innerWidth; canvas.height = window.innerHeight;
-    var colors = ["#b85c72","#c97b8a","#e8b4be","#f5dce2","#d4869a","#8c5545","#e8d0c4"];
+    canvas.width  = window.innerWidth;
+    canvas.height = window.innerHeight;
+    var colors = ["#c97b8a","#e8b4be","#f5dce2","#a05060","#d4869a","#f7ede8","#6b3a2a"];
     var pieces = [];
     for (var i = 0; i < 130; i++) {
       pieces.push({
-        x: Math.random() * canvas.width, y: Math.random() * canvas.height - canvas.height,
-        w: Math.random() * 8 + 3, h: Math.random() * 4 + 2,
+        x: Math.random() * canvas.width,
+        y: Math.random() * canvas.height - canvas.height,
+        w: Math.random() * 8 + 3,
+        h: Math.random() * 4 + 2,
         color: colors[Math.floor(Math.random() * colors.length)],
-        rot: Math.random() * 360, rotSpeed: (Math.random() - 0.5) * 3.5,
-        vy: Math.random() * 2.5 + 0.8, vx: (Math.random() - 0.5) * 1.2,
+        rot: Math.random() * 360,
+        rotSpeed: (Math.random() - 0.5) * 3.5,
+        vy: Math.random() * 2.5 + 0.8,
+        vx: (Math.random() - 0.5) * 1.2,
         opacity: Math.random() * 0.55 + 0.45
       });
     }
@@ -1136,201 +1170,61 @@
         p.y += p.vy; p.x += p.vx; p.rot += p.rotSpeed;
         if (p.y > canvas.height) { p.y = -10; p.x = Math.random() * canvas.width; }
         cctx.save();
-        cctx.translate(p.x, p.y); cctx.rotate(p.rot * Math.PI / 180);
+        cctx.translate(p.x, p.y);
+        cctx.rotate(p.rot * Math.PI / 180);
         cctx.globalAlpha = p.opacity * (1 - frame / 420);
-        cctx.fillStyle = p.color;
+        cctx.fillStyle   = p.color;
         cctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
         cctx.restore();
       }
-      frame++; requestAnimationFrame(drawConf);
+      frame++;
+      requestAnimationFrame(drawConf);
     })();
   }
 
-  /* ══════════════════════════════════════════════
-     MUSIK INSTRUMENTAL ROMANTIS — WEB AUDIO API
-     Generate ambient piano + pad secara procedural
-     sehingga tidak perlu file eksternal
-  ══════════════════════════════════════════════ */
-  var audioCtx = null;
-  var masterGain = null;
-  var musicPlaying = false;
-  var musicNodes = [];
-  var audioToggleBtn = document.getElementById("audioToggle");
-
-  // Chord progression romantis: Cmaj7, Am7, Fmaj7, G7
-  // Dalam frekuensi Hz
-  var chords = [
-    [261.63, 329.63, 392.00, 493.88],   // Cmaj7
-    [220.00, 261.63, 329.63, 440.00],   // Am7
-    [174.61, 220.00, 261.63, 349.23],   // Fmaj7
-    [196.00, 246.94, 293.66, 392.00],   // G7
-  ];
-  var melodyNotes = [523.25, 493.88, 440.00, 493.88, 523.25, 587.33, 523.25, 493.88, 440.00, 392.00, 440.00, 493.88];
-  var chordIdx = 0;
-  var melodyIdx = 0;
-  var chordTimer = null;
-  var melodyTimer = null;
-
-  function createAudioContext() {
-    if (audioCtx) return;
-    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-    masterGain = audioCtx.createGain();
-    masterGain.gain.setValueAtTime(0, audioCtx.currentTime);
-    masterGain.connect(audioCtx.destination);
-
-    // Reverb via convolver
-    var convolver = audioCtx.createConvolver();
-    var reverbLen = audioCtx.sampleRate * 3;
-    var impulse = audioCtx.createBuffer(2, reverbLen, audioCtx.sampleRate);
-    for (var ch = 0; ch < 2; ch++) {
-      var channelData = impulse.getChannelData(ch);
-      for (var i = 0; i < reverbLen; i++) {
-        channelData[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / reverbLen, 2.5);
-      }
-    }
-    convolver.buffer = impulse;
-    var reverbGain = audioCtx.createGain();
-    reverbGain.gain.value = 0.35;
-    masterGain.connect(convolver);
-    convolver.connect(reverbGain);
-    reverbGain.connect(audioCtx.destination);
-  }
-
-  function playNote(freq, startTime, duration, volume, type) {
-    if (!audioCtx) return;
-    var osc = audioCtx.createOscillator();
-    var env = audioCtx.createGain();
-    osc.type = type || "sine";
-    osc.frequency.setValueAtTime(freq, startTime);
-    env.gain.setValueAtTime(0, startTime);
-    env.gain.linearRampToValueAtTime(volume, startTime + 0.08);
-    env.gain.exponentialRampToValueAtTime(volume * 0.6, startTime + duration * 0.5);
-    env.gain.linearRampToValueAtTime(0.0001, startTime + duration);
-    osc.connect(env);
-    env.connect(masterGain);
-    osc.start(startTime);
-    osc.stop(startTime + duration + 0.05);
-    musicNodes.push(osc);
-  }
-
-  function playChord() {
-    if (!audioCtx || !musicPlaying) return;
-    var now = audioCtx.currentTime;
-    var chord = chords[chordIdx % chords.length];
-    // Bass note
-    playNote(chord[0] / 2, now, 3.8, 0.18, "triangle");
-    // Pad chords - slow attack sine for warmth
-    for (var i = 0; i < chord.length; i++) {
-      playNote(chord[i], now + i * 0.08, 3.6, 0.055, "sine");
-    }
-    chordIdx++;
-    chordTimer = setTimeout(playChord, 4000);
-  }
-
-  function playMelodyNote() {
-    if (!audioCtx || !musicPlaying) return;
-    var now = audioCtx.currentTime;
-    var freq = melodyNotes[melodyIdx % melodyNotes.length];
-    playNote(freq, now, 1.1, 0.09, "triangle");
-    // Soft harmonics
-    playNote(freq * 2, now, 0.9, 0.025, "sine");
-    melodyIdx++;
-    var nextDelay = [900, 700, 800, 900, 700, 1100, 900, 700, 800, 1000, 800, 700][melodyIdx % 12];
-    melodyTimer = setTimeout(playMelodyNote, nextDelay);
-  }
-
-  function startMusic() {
-    if (musicPlaying) return;
-    createAudioContext();
-    if (audioCtx.state === "suspended") audioCtx.resume();
-    musicPlaying = true;
-    masterGain.gain.cancelScheduledValues(audioCtx.currentTime);
-    masterGain.gain.linearRampToValueAtTime(0.72, audioCtx.currentTime + 2.5);
-    playChord();
-    setTimeout(playMelodyNote, 1200);
-    audioToggleBtn.innerHTML = "&#9834;";
-    audioToggleBtn.classList.add("playing");
-  }
-
-  function stopMusic() {
-    musicPlaying = false;
-    if (chordTimer) clearTimeout(chordTimer);
-    if (melodyTimer) clearTimeout(melodyTimer);
-    if (masterGain && audioCtx) {
-      masterGain.gain.linearRampToValueAtTime(0.0001, audioCtx.currentTime + 1.2);
-    }
-    audioToggleBtn.innerHTML = "&#9835;";
-    audioToggleBtn.classList.remove("playing");
-  }
-
-  var bgMusic = document.getElementById("bgMusic");
-  var mp3Active = false;   // true kalau mp3 berhasil play
+  /* ── AUDIO ── */
+  var audio        = document.getElementById("bgMusic");
+  var audioBtn     = document.getElementById("audioToggle");
   var audioStarted = false;
 
-  function fadeInMp3() {
-    bgMusic.volume = 0;
-    audioToggleBtn.innerHTML = "&#9834;";
-    audioToggleBtn.classList.add("playing");
-    mp3Active = true;
+  function fadeInAudio() {
     var vol = 0;
     var iv = setInterval(function() {
-      vol += 0.006;
-      if (vol >= 0.45) { bgMusic.volume = 0.45; clearInterval(iv); }
-      else bgMusic.volume = vol;
-    }, 80);
+      vol += 0.005;
+      if (vol >= 0.38) { audio.volume = 0.38; clearInterval(iv); return; }
+      audio.volume = vol;
+    }, 100);
   }
 
-  function startAudio() {
-    // Selalu coba mp3 dulu — ini bekerja di Chrome, Firefox, Safari, dan mobile
-    // asal file music.mp3 ada di folder yang sama
-    bgMusic.volume = 0;
-    bgMusic.load(); // paksa reload agar Safari mau baca file
-    var playPromise = bgMusic.play();
-    if (playPromise !== undefined) {
-      playPromise.then(function() {
-        fadeInMp3();
-      }).catch(function() {
-        // mp3 gagal (file tidak ada / format tidak didukung) → pakai instrumen
-        startMusic();
-      });
-    } else {
-      // Browser lama yang tidak return promise
-      fadeInMp3();
-    }
-  }
-
-  // Toggle button — pause/resume mp3 atau instrumen
-  audioToggleBtn.addEventListener("click", function() {
-    if (!audioStarted) {
-      audioStarted = true;
-      startAudio();
-      return;
-    }
-    if (mp3Active) {
-      if (bgMusic.paused) {
-        bgMusic.play();
-        audioToggleBtn.innerHTML = "&#9834;";
-        audioToggleBtn.classList.add("playing");
-      } else {
-        bgMusic.pause();
-        audioToggleBtn.innerHTML = "&#9835;";
-        audioToggleBtn.classList.remove("playing");
-      }
-    } else {
-      if (!musicPlaying) startMusic();
-      else stopMusic();
-    }
-  });
-
-  // Autoplay saat interaksi pertama (wajib untuk semua browser modern)
-  function tryStart() {
+  function tryPlayAudio() {
     if (audioStarted) return;
-    audioStarted = true;
-    startAudio();
+    audio.volume = 0;
+    var promise = audio.play();
+    if (promise !== undefined) {
+      promise.then(function() {
+        audioStarted = true;
+        fadeInAudio();
+      }).catch(function() {});
+    }
   }
-  document.addEventListener("click",      tryStart, { once: true });
-  document.addEventListener("scroll",     tryStart, { once: true });
-  document.addEventListener("touchstart", tryStart, { once: true, passive: true });
+
+  if (audioBtn) {
+    audioBtn.addEventListener("click", function() {
+      if (!audioStarted) {
+        tryPlayAudio();
+      } else if (audio.paused) {
+        audio.play();
+        audioBtn.innerHTML = "&#9834;";
+      } else {
+        audio.pause();
+        audioBtn.innerHTML = "&#9835;";
+      }
+    });
+  }
+
+  document.addEventListener("click",  tryPlayAudio, { once: true });
+  document.addEventListener("scroll", tryPlayAudio, { once: true });
+  setTimeout(tryPlayAudio, 600);
 
 })();
 </script>
